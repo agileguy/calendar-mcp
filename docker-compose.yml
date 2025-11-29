@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  calendar-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: calendar-mcp
+    restart: unless-stopped
+
+    # Port mapping for HTTP mode (optional, mainly for testing)
+    ports:
+      - "8000:8000"
+      - "8080:8080"  # OAuth callback port
+
+    # Volume mounts
+    volumes:
+      # Mount .env file (create this first from example.env)
+      - ./.env:/app/.env:ro
+
+      # Mount tokens directory for persistent OAuth tokens
+      - ./data:/app/data
+
+      # Mount logs directory
+      - ./logs:/app/logs
+
+      # Optional: Mount source for development (comment out for production)
+      # - ./src:/app/src:ro
+
+    # Environment variables (can override .env)
+    environment:
+      - TOKEN_FILE_PATH=/app/data/.gcp-saved-tokens.json
+      - HOST=0.0.0.0
+      - PORT=8000
+      - RELOAD=false
+
+    # Health check
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+    # Stdin open for MCP stdio communication
+    stdin_open: true
+    tty: true
+
+    # Network mode (use host for OAuth callback to work seamlessly)
+    # Comment this out if you don't need OAuth callback in container
+    # network_mode: "host"
+
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

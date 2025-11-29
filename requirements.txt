@@ -2,5 +2,7 @@ google-api-python-client
 google-auth-oauthlib
 google-auth-httplib2
 fastapi
-uvicorn[standard] 
-python-dateutil 
+uvicorn[standard]
+python-dateutil
+python-dotenv
+mcp 
